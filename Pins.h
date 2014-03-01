@@ -12,10 +12,11 @@ const int SERVO_CONTROLLER_CLOSE_PULSE = 1700;
 
 const int PHOTO_RESISTOR_THRESHOLD = 700;
 
-// how long do we ignore arrival signal (because that signal is active already
-// when we start)
-const int GATE_ARRIVED_SIGNAL_MARGIN = 2000;
-const int MAGNET_ACTIVATION_TIME = 2000;
+// how long do we ignore the arrival signal (because that signal is active
+// already when we start transitioning)
+const int GATE_MIN_TRANSITION_TIME = 2500;
+const int GATE_MAX_TRANSITION_TIME = 6000;
+const int MAGNET_ACTIVATION_TIME = 1500;
 
 
 #endif

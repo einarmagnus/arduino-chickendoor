@@ -36,21 +36,28 @@ void GateController::step(unsigned long now) {
     if (this->state == GATE_OPEN || this->state == GATE_CLOSED) {
         return;
     }
-    if (this->busy() && time_diff(this->transitionStartTime, now) > GATE_ARRIVED_SIGNAL_MARGIN) {
-        int arrivalSignal = analogRead(GATE_ARRIVED_PIN);
-        // basically any reading that is not 1023 or 0 is ON.
-        // Should typically be about 512, but let's keep plenty of margin
-        int arrived = arrivalSignal > 200 && arrivalSignal < 800;
-        if (arrived) {
-            Serial.print("ARRIVED ");
-            Serial.print(arrivalSignal);
-            Serial.print(" (");
-            Serial.print(this->transitionStartTime);
-            Serial.println(")");
+    if (this->busy()) {
+        int time_passed = time_diff(this->transitionStartTime, now);
+        if (time_passed > GATE_MIN_TRANSITION_TIME) {
+            int arrivalSignal = analogRead(GATE_ARRIVED_PIN);
+            // basically any reading that is not 1023 or 0 is ON.
+            // Should typically be about 512, but let's keep plenty of margin
+            int arrived = arrivalSignal > 200 && arrivalSignal < 800;
+            // also enforce max transition time if something is broken we don't
+            // want the servo to break more stuff!
+            if (arrived || time_passed > GATE_MAX_TRANSITION_TIME) {
+                Serial.print("ARRIVED ");
+                Serial.print(arrivalSignal);
+                Serial.print(" (");
+                Serial.print(this->transitionStartTime);
+                Serial.println(")");
 
-            this->state = (this->state == GATE_OPENING ? GATE_OPEN : GATE_CLOSED);
-            this->servo.detach();
+                this->state = (this->state == GATE_OPENING
+                                ? GATE_OPEN
+                                : GATE_CLOSED);
+                this->servo.detach();
 
+            }
         }
     }
 }
