@@ -9,13 +9,8 @@
   */
 class DayOrNight {
 public:
-    /** Constructor
-      * `sensor_pin` is the pin on which to read the photoresistor
-      * `threshold` is the threshold where day turns to night and vice versa
-      */
-    DayOrNight(int (*sensorRead)(), int threshold);
 
-
+    DayOrNight();
 
     /** Read value and do calculations
       */
@@ -31,8 +26,6 @@ public:
 
 private:
     int samples;
-    int threshold;
-    int (*sensorRead)(); // the function with which to read sensor values
     MeanTracker *secondMean, // keep track of sub second values, 10 of them
                 *minuteMean, // keep track of second values
                 *tenMinuteMean; // keep track of minute values.

@@ -1,78 +1,74 @@
 #include "DayOrNight.h"
 #include <Servo.h>
-
-const int PhotoResistorPin = 0; // A0
-const int ElectroMagnetControllerPin = 2; // D2
-const int ServoControllerPin = 3; // D3
-const int ServoControllerOpenPulse = 800;
-const int ServoControllerClosePulse = 1700;
-const int PhotoResistorThreshold = 800;
-const int PhotoResistorThresholdIndicatorPin = 13;
+#include "Pins.h"
 
 Servo myservo;  // create servo object to control a servo
 DayOrNight *dayOrNight;
 
 void setup() {
-    pinMode(ElectroMagnetControllerPin, OUTPUT);
-    pinMode(ServoControllerPin, OUTPUT);
-    pinMode(PhotoResistorThresholdIndicatorPin, OUTPUT);
-    myservo.attach(ServoControllerPin);
+    pinMode(ELECTRO_MAGNET_CONTROLLER_PIN, OUTPUT);
+    pinMode(SERVO_CONTROLLER_PIN, OUTPUT);
     Serial.begin(9600);
-    dayOrNight = new DayOrNight(readPhotoResistor, PhotoResistorThreshold);
-}
-
-int readPhotoResistor() {
-    return analogRead(PhotoResistorPin);
+    dayOrNight = new DayOrNight();
 }
 
 void electroMagnetsOn() {
-    digitalWrite(ElectroMagnetControllerPin, HIGH);
+    digitalWrite(ELECTRO_MAGNET_CONTROLLER_PIN, HIGH);
 }
 void electroMagnetsOff() {
-    digitalWrite(ElectroMagnetControllerPin, LOW);
+    digitalWrite(ELECTRO_MAGNET_CONTROLLER_PIN, LOW);
 }
 
 void gateStartOpen() {
     if (!myservo.attached()) {
-        myservo.attach(ServoControllerPin);
+        myservo.attach(SERVO_CONTROLLER_PIN);
     }
-    myservo.writeMicroseconds(ServoControllerOpenPulse);
+    myservo.writeMicroseconds(SERVO_CONTROLLER_OPEN_PULSE);
 }
 
 void gateStartClose() {
     if (!myservo.attached()) {
-        myservo.attach(ServoControllerPin);
+        myservo.attach(SERVO_CONTROLLER_PIN);
     }
-    myservo.writeMicroseconds(ServoControllerClosePulse);
+    myservo.writeMicroseconds(SERVO_CONTROLLER_CLOSE_PULSE);
 }
 
 void gateStop() {
     myservo.detach();
 }
 
-// This is to try to get something close to proper intervals
-int delayInterval(int interval) {
-    static int delayIntervalLastTime = millis();
-    unsigned long thisTime = millis();
-    int delay_ms;
-    if (thisTime < delayIntervalLastTime) {
-      //millis has overflowed, happens every 50 days
-      delay_ms = interval - (thisTime + (((unsigned long)-1l) - delayIntervalLastTime));
-    } else {
-      delay_ms = interval - (thisTime - delayIntervalLastTime);
-    }
 
-    delay(delay_ms);
-
-    delayIntervalLastTime = millis();
-}
 void loop() {
+    static int wasDay = true;
+    static unsigned long gateTime = 0;
 
-    delayInterval(100);
     dayOrNight->step();
 
-    digitalWrite(PhotoResistorThresholdIndicatorPin,
-                    dayOrNight->aboveThreshold() ? LOW : HIGH);
+    int isDay = dayOrNight->isDay();
 
-    Serial.println(dayOrNight->secondMean->getMean());
+    if (gateTime == 0) {
+        if (isDay && !wasDay) {
+            Serial.print(" Open!");
+            gateStartOpen();
+            electroMagnetsOn();
+            gateTime = millis();
+        } else if (!isDay && wasDay) {
+            Serial.print(" Close!");
+            gateStartClose();
+            electroMagnetsOn();
+            gateTime = millis();
+        }
+    } else {
+
+        if (millis() > gateTime + 5000 ) {
+            Serial.print(" Transitioned!");
+            gateTime = 0;
+            gateStop();
+        }
+        if (millis() > gateTime + 500 ) {
+            electroMagnetsOff();
+        }
+
+    }
+    wasDay = isDay;
 }
