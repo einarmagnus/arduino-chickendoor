@@ -28,13 +28,13 @@ void GateController::step(unsigned long now) {
         Serial.println(")");
         last_state = this->state;
     }
-    if (this->state == GATE_OPEN || this->state == GATE_CLOSED) {
-        return;
-    }
     if (this->magnetsActive) {
         if (time_diff(this->magnetsActivationTime, now) > MAGNET_ACTIVATION_TIME) {
             this->deactivateMagnets();
         }
+    }
+    if (this->state == GATE_OPEN || this->state == GATE_CLOSED) {
+        return;
     }
     if (this->busy() && time_diff(this->transitionStartTime, now) > GATE_ARRIVED_SIGNAL_MARGIN) {
         int arrivalSignal = analogRead(GATE_ARRIVED_PIN);
