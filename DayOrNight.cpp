@@ -1,6 +1,6 @@
 #include "DayOrNight.h"
 #include <Arduino.h>
-#include "Pins.h"
+#include "Consts.h"
 #include "Util.h"
 
 DayOrNight::DayOrNight() {

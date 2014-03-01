@@ -1,6 +1,6 @@
 #include "GateController.h"
 #include <Arduino.h>
-#include "Pins.h"
+#include "Consts.h"
 #include "Util.h"
 
 

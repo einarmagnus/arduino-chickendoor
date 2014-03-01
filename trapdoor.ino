@@ -1,7 +1,7 @@
 #include "DayOrNight.h"
 #include "GateController.h"
 #include <Servo.h>
-#include "Pins.h"
+#include "Consts.h"
 
 DayOrNight dayOrNight;
 GateController gate;

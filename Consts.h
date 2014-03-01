@@ -1,5 +1,5 @@
-#ifndef Pins_h
-#define Pins_h
+#ifndef Consts_h
+#define Consts_h
 
 const int PHOTO_RESISTOR_PIN = 0; // A0
 const int GATE_ARRIVED_PIN = 1; // A1
