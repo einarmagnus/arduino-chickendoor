@@ -19,9 +19,8 @@ DayOrNight::DayOrNight() {
   this->samples = 0;
 };
 
-void DayOrNight::step() {
+void DayOrNight::step(unsigned long now) {
   static unsigned long lastTime = 0;
-  unsigned long now = millis();
 
   // we only run every 100ms
   if (time_diff(lastTime, now) < 100 ) {

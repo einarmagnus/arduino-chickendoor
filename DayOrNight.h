@@ -14,7 +14,7 @@ public:
 
     /** Read value and do calculations
       */
-    void step();
+    void step(unsigned long now);
 
     /** Return 1 if day, 0 otherwise
       */
